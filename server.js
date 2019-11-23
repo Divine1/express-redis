@@ -33,15 +33,25 @@ app.get("/users/:userid",cache,async (req,res)=>{
 
     let response=await fetch(`https://api.github.com/users/${userid}`)
     let json = await response.json()
-    //console.log("json ",json)
     let public_repos = json.public_repos
     console.log("public_repos ",public_repos)
-    client.setex(userid,3600,public_repos)
-    res.send(setResponse(userid,public_repos))
+    //client.setex(userid,3600,public_repos)
+    
+    client.set(userid,public_repos,(err,data)=>{
+        if(err){
+            console.log("err ",err)
+            res.send({"data" : "my data"})
+        }
+        else{
+            console.log("data ",data)
+            res.send(setResponse(userid,public_repos))
+        }
+    })
+    
 })
 
 
-app.listen(4000,()=>{
+app.listen(4000,"localhost",()=>{
     console.log("nodejs server running on port 4000")
 })
 
